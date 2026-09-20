@@ -1,0 +1,417 @@
+<title>Tic-Tac-Toe</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=JetBrains+Mono:wght@500;700&family=Inter:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --bg: #f6f3ee;
+    --paper: #fffdf9;
+    --ink: #1b1f23;
+    --ink-soft: #5b5850;
+    --line: #d8d0c0;
+    --x-color: #c8432f;
+    --o-color: #276e60;
+    --ring: rgba(27, 31, 35, 0.08);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #15171a;
+      --paper: #1d2023;
+      --ink: #ece7de;
+      --ink-soft: #a7a196;
+      --line: #3a3d3f;
+      --x-color: #e2725f;
+      --o-color: #57ab98;
+      --ring: rgba(236, 231, 222, 0.08);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #15171a;
+    --paper: #1d2023;
+    --ink: #ece7de;
+    --ink-soft: #a7a196;
+    --line: #3a3d3f;
+    --x-color: #e2725f;
+    --o-color: #57ab98;
+    --ring: rgba(236, 231, 222, 0.08);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+    min-height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 16px;
+  }
+
+  html, body { height: 100%; }
+
+  .wrap {
+    width: 100%;
+    max-width: 420px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  h1 {
+    font-family: "Fraunces", Georgia, serif;
+    font-optical-sizing: auto;
+    font-weight: 700;
+    font-size: clamp(28px, 7vw, 36px);
+    letter-spacing: -0.01em;
+    margin: 0;
+    text-align: center;
+    text-wrap: balance;
+  }
+
+  .subtitle {
+    text-align: center;
+    color: var(--ink-soft);
+    font-size: 14px;
+    margin-top: -12px;
+  }
+
+  .scoreboard {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+  }
+
+  .score {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 10px 8px;
+    text-align: center;
+    transition: box-shadow 0.15s ease, border-color 0.15s ease;
+  }
+
+  .score.active {
+    border-color: currentColor;
+    box-shadow: 0 0 0 3px var(--ring);
+  }
+
+  .score .label {
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    display: block;
+  }
+
+  .score .value {
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-weight: 700;
+    font-size: 22px;
+    font-variant-numeric: tabular-nums;
+    display: block;
+    margin-top: 2px;
+  }
+
+  .score.x .value { color: var(--x-color); }
+  .score.o .value { color: var(--o-color); }
+
+  .status {
+    text-align: center;
+    min-height: 24px;
+    font-size: 16px;
+    font-weight: 500;
+  }
+
+  .status .mark-x { color: var(--x-color); font-weight: 700; }
+  .status .mark-o { color: var(--o-color); font-weight: 700; }
+
+  .board {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 10px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    aspect-ratio: 1;
+  }
+
+  .cell {
+    background: transparent;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    font-family: "Fraunces", Georgia, serif;
+    font-size: clamp(32px, 10vw, 48px);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--ink);
+    padding: 0;
+    transition: background 0.15s ease, transform 0.1s ease;
+  }
+
+  .cell:hover:not(:disabled) {
+    background: var(--ring);
+  }
+
+  .cell:active:not(:disabled) {
+    transform: scale(0.96);
+  }
+
+  .cell:disabled {
+    cursor: default;
+  }
+
+  .cell.x { color: var(--x-color); }
+  .cell.o { color: var(--o-color); }
+
+  .cell.win {
+    background: var(--ring);
+    border-color: currentColor;
+  }
+
+  .cell:focus-visible {
+    outline: 2px solid var(--ink);
+    outline-offset: 2px;
+  }
+
+  .actions {
+    display: flex;
+    gap: 10px;
+  }
+
+  button.action {
+    flex: 1;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    background: var(--paper);
+    color: var(--ink);
+    cursor: pointer;
+  }
+
+  button.action:hover {
+    background: var(--ring);
+  }
+
+  button.action:focus-visible {
+    outline: 2px solid var(--ink);
+    outline-offset: 2px;
+  }
+
+  button.action.primary {
+    background: var(--ink);
+    color: var(--bg);
+    border-color: var(--ink);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cell { transition: none; }
+  }
+</style>
+
+<div class="wrap">
+  <div>
+    <h1>Tic-Tac-Toe</h1>
+    <p class="subtitle">Pass the screen and take turns</p>
+  </div>
+
+  <div class="scoreboard">
+    <div class="score x" id="scoreX">
+      <span class="label">Player X</span>
+      <span class="value" id="scoreXValue">0</span>
+    </div>
+    <div class="score" id="scoreDraw">
+      <span class="label">Draws</span>
+      <span class="value" id="scoreDrawValue">0</span>
+    </div>
+    <div class="score o" id="scoreO">
+      <span class="label">Player O</span>
+      <span class="value" id="scoreOValue">0</span>
+    </div>
+  </div>
+
+  <p class="status" id="status" aria-live="polite"></p>
+
+  <div class="board" id="board" role="group" aria-label="Tic-tac-toe board"></div>
+
+  <div class="actions">
+    <button class="action primary" id="newRound">New round</button>
+    <button class="action" id="resetScores">Reset scores</button>
+  </div>
+</div>
+
+<script>
+  (function () {
+    var WIN_LINES = [
+      [0, 1, 2], [3, 4, 5], [6, 7, 8],
+      [0, 3, 6], [1, 4, 7], [2, 5, 8],
+      [0, 4, 8], [2, 4, 6]
+    ];
+
+    var boardEl = document.getElementById('board');
+    var statusEl = document.getElementById('status');
+    var scoreXEl = document.getElementById('scoreXValue');
+    var scoreOEl = document.getElementById('scoreOValue');
+    var scoreDrawEl = document.getElementById('scoreDrawValue');
+    var scoreXCard = document.getElementById('scoreX');
+    var scoreOCard = document.getElementById('scoreO');
+    var scoreDrawCard = document.getElementById('scoreDraw');
+
+    var cells = [];
+    var board = Array(9).fill(null);
+    var current = 'X';
+    var over = false;
+    var scores = { X: 0, O: 0, draw: 0 };
+
+    function loadScores() {
+      try {
+        var raw = localStorage.getItem('ttt-scores');
+        if (raw) {
+          var parsed = JSON.parse(raw);
+          if (typeof parsed.X === 'number') scores.X = parsed.X;
+          if (typeof parsed.O === 'number') scores.O = parsed.O;
+          if (typeof parsed.draw === 'number') scores.draw = parsed.draw;
+        }
+      } catch (e) {}
+    }
+
+    function saveScores() {
+      try {
+        localStorage.setItem('ttt-scores', JSON.stringify(scores));
+      } catch (e) {}
+    }
+
+    function renderScores() {
+      scoreXEl.textContent = scores.X;
+      scoreOEl.textContent = scores.O;
+      scoreDrawEl.textContent = scores.draw;
+    }
+
+    function buildBoard() {
+      boardEl.innerHTML = '';
+      cells = [];
+      for (var i = 0; i < 9; i++) {
+        var btn = document.createElement('button');
+        btn.className = 'cell';
+        btn.type = 'button';
+        btn.id = 'cell-' + i;
+        btn.setAttribute('aria-label', 'Cell ' + (i + 1));
+        btn.addEventListener('click', (function (idx) {
+          return function () { playMove(idx); };
+        })(i));
+        boardEl.appendChild(btn);
+        cells.push(btn);
+      }
+    }
+
+    function checkWinner() {
+      for (var i = 0; i < WIN_LINES.length; i++) {
+        var line = WIN_LINES[i];
+        var a = board[line[0]], b = board[line[1]], c = board[line[2]];
+        if (a && a === b && b === c) {
+          return { player: a, line: line };
+        }
+      }
+      return null;
+    }
+
+    function setStatus(html) {
+      statusEl.innerHTML = html;
+    }
+
+    function markLabel(p) {
+      return '<span class="mark-' + p.toLowerCase() + '">' + p + '</span>';
+    }
+
+    function updateActiveCard() {
+      scoreXCard.classList.toggle('active', !over && current === 'X');
+      scoreOCard.classList.toggle('active', !over && current === 'O');
+      scoreDrawCard.classList.remove('active');
+    }
+
+    function playMove(idx) {
+      if (over || board[idx]) return;
+      board[idx] = current;
+      var cell = cells[idx];
+      cell.textContent = current;
+      cell.classList.add(current.toLowerCase());
+      cell.disabled = true;
+
+      var result = checkWinner();
+      if (result) {
+        over = true;
+        result.line.forEach(function (i) { cells[i].classList.add('win'); });
+        cells.forEach(function (c) { c.disabled = true; });
+        scores[result.player]++;
+        saveScores();
+        renderScores();
+        setStatus(markLabel(result.player) + ' wins!');
+        updateActiveCard();
+        return;
+      }
+
+      if (board.every(Boolean)) {
+        over = true;
+        scores.draw++;
+        saveScores();
+        renderScores();
+        setStatus("It's a draw");
+        updateActiveCard();
+        return;
+      }
+
+      current = current === 'X' ? 'O' : 'X';
+      setStatus(markLabel(current) + "'s turn");
+      updateActiveCard();
+    }
+
+    function newRound() {
+      board = Array(9).fill(null);
+      current = 'X';
+      over = false;
+      cells.forEach(function (c) {
+        c.textContent = '';
+        c.className = 'cell';
+        c.disabled = false;
+      });
+      setStatus(markLabel(current) + "'s turn");
+      updateActiveCard();
+    }
+
+    function resetScores() {
+      scores = { X: 0, O: 0, draw: 0 };
+      saveScores();
+      renderScores();
+    }
+
+    document.getElementById('newRound').addEventListener('click', newRound);
+    document.getElementById('resetScores').addEventListener('click', resetScores);
+
+    function boot(saved) {
+      if (saved && saved.scores) scores = saved.scores;
+      else loadScores();
+      buildBoard();
+      renderScores();
+      newRound();
+    }
+
+    if (window.claude && window.claude.hot) {
+      window.claude.hot.snapshot(function () {
+        return { scores: scores };
+      });
+      window.claude.hot.ready
+        ? window.claude.hot.ready(function (data) { boot(data); })
+        : boot(window.claude.hot.data);
+    } else {
+      boot(null);
+    }
+  })();
+</script>
