@@ -17,4 +17,8 @@ Everything (markup, CSS, and JS) lives in `tic-tac-toe.html`:
 
 ## Version control
 
-This project is tracked in git and pushed to GitHub (`anantkaushal02/tic-tac-toe`, public). Make focused, descriptive commits as changes are made and push them, rather than leaving work only committed locally.
+This project is tracked in git and pushed to GitHub (`anantkaushal02/tic-tac-toe`, public). Git/GitHub is the safety net for this project's history, so treat committing and pushing as part of doing the work, not an afterthought:
+
+- Commit regularly as work progresses — after each meaningful, working change — rather than batching up a large, unrelated diff into one commit.
+- Write clean, descriptive commit messages that explain *why* a change was made, not just what changed.
+- Push to GitHub after committing so work is never left sitting only in the local repo. This is what lets us recover or revert to any prior state if something breaks.
